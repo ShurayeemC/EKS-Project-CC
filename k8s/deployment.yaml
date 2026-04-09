@@ -5,7 +5,7 @@ metadata:                       # Metadata about the deployment such as its name
   labels:                       # Labels are just key-value tags you stick on Kubernetes resources. Think of them like luggage tags at an airport — they help identify and group things
     app: 2048-app               # The actual label which will show "2048-app"
 spec:                           # Specification of the deployment
-  replicas: 2                 # Number of deployments
+  replicas: 3               # Number of deployments
   selector:                     # A selector is the search query that finds resources with matching labels. 
     matchLabels:                # Matching the labels telling the deployment to manage the pods which have the labels underneath
       app: 2048-app 

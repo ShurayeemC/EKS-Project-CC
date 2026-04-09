@@ -1,0 +1,21 @@
+apiVersion: apps/v1             # The API version that the deployment calls from KubeAPI server
+kind: Deployment                # The type of resource being created in the node which is what "Kind" defines
+metadata:                       # Metadata about the deployment such as its name and labels
+  name: eks-deployment         # Name of Deployment
+  labels:                       # Labels are just key-value tags you stick on Kubernetes resources. Think of them like luggage tags at an airport — they help identify and group things
+    app: 2048-app               # The actual label which will show "2048-app"
+spec:                           # Specification of the deployment
+  replicas: 3                   # Number of deployments
+  selector:                     # A selector is the search query that finds resources with matching labels. 
+    matchLabels:                # Matching the labels telling the deployment to manage the pods which have the labels underneath
+      app: 2048-app 
+  template:                     # This is creating a pod
+    metadata:
+      labels:
+        app: 2048-app
+    spec:
+      containers:
+      - name: 2048-app
+        image: 321431649440.dkr.ecr.eu-west-2.amazonaws.com/sc-eks-ecr
+        ports:
+        - containerPort: 3000

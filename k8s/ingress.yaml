@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app2048-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production
+
+spec:
+  ingressClassName: traefik
+  tls:
+  - hosts:
+    - sc-k8sapp.com
+    secretName: app2048-tls
+  rules:
+  - host: sc-k8sapp.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: app2048service
+            port:
+              number: 80

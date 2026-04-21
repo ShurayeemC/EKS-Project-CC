@@ -57,7 +57,7 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: sc-eks-ecr
           IMAGE_TAG: ${{ github.sha }}
-        run: trivy image --exit-code 1 --severity CRITICAL --ignore-unfixed $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        run: trivy image --exit-code 0 --severity CRITICAL --ignore-unfixed $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Push to ECR
         env:

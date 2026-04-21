@@ -383,7 +383,7 @@ kubectl --namespace monitoring port-forward svc/prometheus-grafana 3001:80
 
 Open `http://localhost:3001` and login with username `admin` and the retrieved password.
 
-![Grafana Dashboard](./screenshots/grafana.png)
+![Grafana Dashboard](./screenshots/grafanadash.png)
 *Grafana monitoring dashboard showing cluster metrics and performance*
 
 > **🔧 Remote Access Note:** If accessing from a remote dev machine, use SSH tunneling:

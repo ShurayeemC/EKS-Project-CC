@@ -133,7 +133,7 @@ terraform plan
 ### Step 3: Apply Infrastructure
 
 ```bash
-terraform apply -auto-approve
+terraform apply 
 ```
 
 ### 🏗️ Provisioned Resources

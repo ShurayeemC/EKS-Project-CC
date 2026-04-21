@@ -1,7 +1,4 @@
-Here's the full README content to copy:
-markdown# EKS Project — Production-Grade Kubernetes on AWS
-
-A production-grade Kubernetes deployment on Amazon EKS demonstrating end-to-end Platform Engineering skills across infrastructure provisioning, container orchestration, GitOps, security scanning, observability, and automated CI/CD.
+# A production-grade Kubernetes deployment on Amazon EKS demonstrating end-to-end Platform Engineering skills across infrastructure provisioning, container orchestration, GitOps, security scanning, observability, and automated CI/CD.
 
 **Live URL:** [https://sc-k8sapp.com](https://sc-k8sapp.com)
 

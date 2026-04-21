@@ -18,7 +18,6 @@ A production-grade Kubernetes deployment on Amazon EKS demonstrating end-to-end 
 8. [📊 Monitoring](#-monitoring)
 9. [⚙️ CI/CD Pipelines](#️-cicd-pipelines)
 10. [🏛️ Architecture](#️-architecture)
-11. [📸 Screenshots](#-screenshots)
 
 ---
 
@@ -470,17 +469,6 @@ Ingress Created → ExternalDNS Detection → Route 53 Record Creation → DNS P
 ```
 Main Branch Push → GitHub Actions → Image Build & Push → Deployment Update → ArgoCD Sync → Cluster Deployment
 ```
-
----
-
-## 📸 Screenshots
-
-| Component | Screenshot |
-|---|---|
-| **Live Application** at `https://sc-k8sapp.com` | ![Application](./screenshots/app.png) |
-| **ArgoCD** - Healthy and Synced Status | ![ArgoCD Dashboard](./screenshots/argocd.png) |
-| **Grafana** - Cluster Networking Dashboard | ![Grafana Monitoring](./screenshots/grafana.png) |
-| **GitHub Actions** - Successful Pipeline Runs | ![CI/CD Pipelines](./screenshots/github-actions.png) |
 
 ---
 

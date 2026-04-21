@@ -1,150 +1,188 @@
-# A production-grade Kubernetes deployment on Amazon EKS demonstrating end-to-end Platform Engineering skills across infrastructure provisioning, container orchestration, GitOps, security scanning, observability, and automated CI/CD.
+# EKS Project - Cloud-Native Platform Engineering
 
-**Live URL:** [https://sc-k8sapp.com](https://sc-k8sapp.com)
+A production-grade Kubernetes deployment on Amazon EKS demonstrating end-to-end Platform Engineering skills across infrastructure provisioning, container orchestration, GitOps, security scanning, observability, and automated CI/CD.
 
----
-
-## Table of Contents
-
-1. [Overview](#overview)
-2. [Prerequisites](#prerequisites)
-3. [Repository Structure](#repository-structure)
-4. [Infrastructure Provisioning](#infrastructure-provisioning)
-5. [Connecting to the Cluster](#connecting-to-the-cluster)
-6. [Deploying the Application](#deploying-the-application)
-7. [GitOps with ArgoCD](#gitops-with-argocd)
-8. [Monitoring](#monitoring)
-9. [CI/CD Pipelines](#cicd-pipelines)
-10. [Architecture](#architecture)
-11. [Screenshots](#screenshots)
+**🌐 Live URL:** [https://sc-k8sapp.com](https://sc-k8sapp.com)
 
 ---
 
-## Overview
+## 📋 Table of Contents
+
+1. [📊 Overview](#-overview)
+2. [🛠️ Prerequisites](#️-prerequisites)
+3. [📁 Repository Structure](#-repository-structure)
+4. [🏗️ Infrastructure Provisioning](#️-infrastructure-provisioning)
+5. [🔗 Connecting to the Cluster](#-connecting-to-the-cluster)
+6. [🚀 Deploying the Application](#-deploying-the-application)
+7. [🔄 GitOps with ArgoCD](#-gitops-with-argocd)
+8. [📊 Monitoring](#-monitoring)
+9. [⚙️ CI/CD Pipelines](#️-cicd-pipelines)
+10. [🏛️ Architecture](#️-architecture)
+11. [📸 Screenshots](#-screenshots)
+
+---
+
+## 📊 Overview
+
+This project showcases a comprehensive cloud-native platform engineering solution using modern DevOps practices and tools.
+
+### 🛠️ Technology Stack
 
 | Category | Tools |
 |---|---|
-| Cloud | AWS (EKS, ECR, VPC, IAM, Route 53) |
-| IaC | Terraform (modular) |
-| Ingress | Traefik |
-| Certificate Management | CertManager + Let's Encrypt |
-| DNS Automation | ExternalDNS + IRSA |
-| GitOps | ArgoCD |
-| Monitoring | Prometheus + Grafana |
-| CI/CD | GitHub Actions with OIDC |
-| Security Scanning | Checkov + Trivy |
-| Container Registry | Amazon ECR |
+| **Cloud Provider** | AWS (EKS, ECR, VPC, IAM, Route 53) |
+| **Infrastructure as Code** | Terraform (modular architecture) |
+| **Ingress Controller** | Traefik |
+| **Certificate Management** | CertManager + Let's Encrypt |
+| **DNS Automation** | ExternalDNS + IRSA |
+| **GitOps** | ArgoCD |
+| **Monitoring & Observability** | Prometheus + Grafana |
+| **CI/CD** | GitHub Actions with OIDC |
+| **Security Scanning** | Checkov + Trivy |
+| **Container Registry** | Amazon ECR |
 
 ---
 
-## Prerequisites
+## 🛠️ Prerequisites
 
-Before running this project ensure the following are installed and configured:
+Ensure you have the following tools installed and configured before starting:
 
-- AWS CLI configured with appropriate credentials
-- Terraform >= 1.5
-- kubectl
-- Helm >= 3.0
-- An AWS account with permissions to create EKS, VPC, IAM, ECR, and Route 53 resources
-- A domain registered (this project uses `sc-k8sapp.com` via Cloudflare)
+### Required Tools
+
+- **AWS CLI** - configured with appropriate credentials
+- **Terraform** >= 1.5
+- **kubectl** - Kubernetes command-line tool
+- **Helm** >= 3.0 - Kubernetes package manager
+
+### AWS Requirements
+
+- AWS account with permissions to create:
+  - EKS clusters
+  - VPC resources
+  - IAM roles and policies
+  - ECR repositories
+  - Route 53 hosted zones
+- A registered domain (this project uses `sc-k8sapp.com` via Cloudflare)
+
+### GitHub Configuration
+
 - GitHub repository with `AWS_ROLE_ARN` secret configured for OIDC authentication
 
+### Verification
+
 Verify your AWS credentials are working:
+
 ```bash
 aws sts get-caller-identity
 ```
 
 ---
 
-## Repository Structure
+## 📁 Repository Structure
+
+```
 EKS-Project-CC/
-├── infrastructure/               # Terraform IaC
-│   ├── main.tf                   # Root module
-│   ├── providers.tf              # AWS, Kubernetes, Helm providers
-│   ├── backend.tf                # Remote state (S3 + DynamoDB)
-│   ├── variables.tf
-│   ├── outputs.tf
-│   └── modules/
-│       ├── vpc/                  # VPC, subnets, IGW, NAT, route tables
-│       ├── iam/                  # EKS roles, node roles, ExternalDNS IRSA
-│       ├── eks/                  # EKS cluster and node group
-│       ├── securitygroups/       # Control plane and node security groups
-│       └── route53/              # Hosted zone
-├── k8s/                          # Kubernetes manifests
-│   ├── deployment.yaml
-│   ├── svc.yaml
-│   ├── ingress.yaml
-│   └── clusterissuer.yaml
-├── app/                          # Application source and Dockerfile
-├── .github/
+├── infrastructure/                   # Terraform Infrastructure as Code
+│   ├── main.tf                      # Root Terraform module
+│   ├── providers.tf                 # AWS, Kubernetes, Helm providers
+│   ├── backend.tf                   # Remote state (S3 + DynamoDB)
+│   ├── variables.tf                 # Input variables
+│   ├── outputs.tf                   # Output values
+│   └── modules/                     # Modular Terraform components
+│       ├── vpc/                     # VPC, subnets, IGW, NAT, route tables
+│       ├── iam/                     # EKS roles, node roles, ExternalDNS IRSA
+│       ├── eks/                     # EKS cluster and node group
+│       ├── securitygroups/          # Control plane and node security groups
+│       └── route53/                 # DNS hosted zone configuration
+├── k8s/                             # Kubernetes manifests
+│   ├── deployment.yaml              # Application deployment
+│   ├── svc.yaml                     # Kubernetes service
+│   ├── ingress.yaml                 # Ingress configuration
+│   └── clusterissuer.yaml           # Let's Encrypt certificate issuer
+├── app/                             # Application source code and Dockerfile
+│   ├── dockerfile                   # Container build configuration
+│   ├── index.html                   # Application entry point
+│   └── [other app files]           # Additional application resources
+├── .github/                         # GitHub Actions workflows
 │   └── workflows/
-│       ├── docker-security.yml
-│       ├── terraform-apply.yml
-│       └── terraform-destroy.yml
-└── README.md
+│       ├── docker-security.yml      # Security scanning and deployment
+│       ├── terraform-apply.yml      # Infrastructure deployment
+│       └── terraform-destroy.yml    # Infrastructure cleanup
+└── README.md                        # Project documentation
+```
 
 ---
 
-## Infrastructure Provisioning
+## 🏗️ Infrastructure Provisioning
 
-All AWS infrastructure is provisioned via Terraform. State is stored remotely in S3 with DynamoDB locking.
+All AWS infrastructure is provisioned using Terraform with modular architecture. State is stored remotely in S3 with DynamoDB locking for team collaboration.
 
-### 1. Initialise Terraform
+### Step 1: Initialize Terraform
 
 ```bash
 cd infrastructure
 terraform init
 ```
 
-### 2. Review the plan
+### Step 2: Review the Plan
 
 ```bash
 terraform plan
 ```
 
-### 3. Apply infrastructure
+### Step 3: Apply Infrastructure
 
 ```bash
 terraform apply -auto-approve
 ```
 
-This provisions the following resources:
+### 🏗️ Provisioned Resources
 
-- VPC with public and private subnets across 2 Availability Zones
-- Internet Gateway and NAT Gateway
-- EKS cluster with 2 worker nodes
-- IAM roles for the cluster, node group, and ExternalDNS (via IRSA)
-- Security groups for the control plane and worker nodes
-- Route 53 public hosted zone for `sc-k8sapp.com`
+This creates the following AWS infrastructure:
 
-### 4. Tear down infrastructure
+- **VPC**: Custom VPC with public and private subnets across 2 Availability Zones
+- **Networking**: Internet Gateway, NAT Gateway, and route tables
+- **EKS Cluster**: Managed Kubernetes cluster with 2 worker nodes
+- **IAM**: Roles for cluster, node group, and ExternalDNS (via IRSA)
+- **Security Groups**: Properly configured for control plane and worker nodes
+- **Route 53**: Public hosted zone for `sc-k8sapp.com`
+
+### Step 4: Tear Down Infrastructure
 
 ```bash
 terraform destroy -auto-approve
 ```
 
-> **Note on IRSA:** ExternalDNS uses IAM Roles for Service Accounts to authenticate to AWS without static credentials. An OIDC provider is registered in IAM and bound to the ExternalDNS Kubernetes Service Account, granting it scoped Route 53 permissions automatically.
+> **💡 Note on IRSA:** ExternalDNS uses IAM Roles for Service Accounts (IRSA) to authenticate to AWS without static credentials. An OIDC provider is registered in IAM and bound to the ExternalDNS Kubernetes Service Account, automatically granting scoped Route 53 permissions.
 
 ---
 
-## Connecting to the Cluster
+## 🔗 Connecting to the Cluster
 
-After `terraform apply` completes, update your local kubeconfig:
+### Update Local kubeconfig
+
+After `terraform apply` completes successfully, update your local kubeconfig:
 
 ```bash
 aws eks update-kubeconfig --region eu-west-2 --name SC-EKS-Cluster
 ```
 
-Verify the nodes are ready:
+### Verify Cluster Connection
+
+Check that the nodes are ready:
 
 ```bash
 kubectl get nodes
 ```
 
-Expected output:
+**Expected output:**
+```
 NAME                                       STATUS   ROLES    AGE   VERSION
 ip-10-0-3-169.eu-west-2.compute.internal   Ready    <none>   Xd    v1.35.x
 ip-10-0-4-169.eu-west-2.compute.internal   Ready    <none>   Xd    v1.35.x
+```
+
+### Troubleshooting Access Issues
 
 If you receive an `Unauthorized` error, create an access entry for your IAM user:
 
@@ -164,9 +202,9 @@ aws eks associate-access-policy \
 
 ---
 
-## Deploying the Application
+## 🚀 Deploying the Application
 
-### 1. Install Traefik (Ingress Controller)
+### Step 1: Install Traefik (Ingress Controller)
 
 ```bash
 helm repo add traefik https://traefik.github.io/charts
@@ -176,14 +214,14 @@ helm install traefik traefik/traefik \
   --create-namespace
 ```
 
-Verify Traefik is running and has an external load balancer:
+**Verify Traefik installation:**
 
 ```bash
 kubectl get pods -n traefik
 kubectl get svc -n traefik
 ```
 
-### 2. Install CertManager
+### Step 2: Install CertManager
 
 ```bash
 helm repo add jetstack https://charts.jetstack.io
@@ -194,13 +232,13 @@ helm install cert-manager jetstack/cert-manager \
   --set crds.enabled=true
 ```
 
-Verify CertManager pods are running:
+**Verify CertManager installation:**
 
 ```bash
 kubectl get pods -n cert-manager
 ```
 
-### 3. Install ExternalDNS
+### Step 3: Install ExternalDNS
 
 Replace `<external-dns-role-arn>` with the ARN output from Terraform:
 
@@ -216,26 +254,26 @@ helm install external-dns external-dns/external-dns \
   --set policy=sync
 ```
 
-Verify ExternalDNS is creating DNS records:
+**Verify ExternalDNS is working:**
 
 ```bash
 kubectl logs -l app.kubernetes.io/name=external-dns
 ```
 
-### 4. Apply the ClusterIssuer
+### Step 4: Apply the ClusterIssuer
 
 ```bash
 kubectl apply -f k8s/clusterissuer.yaml
 kubectl get clusterissuer
 ```
 
-### 5. Deploy the application
+### Step 5: Deploy the Application
 
 ```bash
 kubectl apply -f k8s/
 ```
 
-Verify all resources are healthy:
+**Verify all resources are healthy:**
 
 ```bash
 kubectl get pods
@@ -243,6 +281,8 @@ kubectl get svc
 kubectl get ingress
 kubectl get certificate
 ```
+
+### Step 6: Wait for SSL Certificate
 
 The certificate will initially show `READY: False` while Let's Encrypt validates the domain. Wait 2-3 minutes:
 
@@ -254,7 +294,7 @@ Once `READY: True`, the application is accessible at `https://sc-k8sapp.com`.
 
 ---
 
-## GitOps with ArgoCD
+## 🔄 GitOps with ArgoCD
 
 ### Install ArgoCD
 
@@ -266,41 +306,43 @@ helm install argocd argo/argo-cd \
   --create-namespace
 ```
 
-### Get the admin password
+### Get Admin Password
 
 ```bash
 kubectl -n argocd get secret argocd-initial-admin-secret \
   -o jsonpath="{.data.password}" | base64 -d
 ```
 
-### Access the ArgoCD UI
+### Access ArgoCD UI
 
 ```bash
 kubectl port-forward service/argocd-server -n argocd 8080:443
 ```
 
-Open `http://localhost:8080` and login with username `admin` and the password retrieved above.
+Open `http://localhost:8080` and login with:
+- **Username:** `admin`
+- **Password:** Retrieved from the previous command
 
-### Create the Application
+### Create Application in ArgoCD
 
-In the ArgoCD UI create a new application with the following settings:
+In the ArgoCD UI, create a new application with these settings:
 
 | Setting | Value |
 |---|---|
-| Application Name | eks-app |
-| Project | default |
-| Sync Policy | Automatic |
-| Repository URL | https://github.com/ShurayeemC/EKS-Project-CC |
-| Revision | main |
-| Path | k8s |
-| Cluster URL | https://kubernetes.default.svc |
-| Namespace | default |
+| **Application Name** | eks-app |
+| **Project** | default |
+| **Sync Policy** | Automatic |
+| **Repository URL** | https://github.com/ShurayeemC/EKS-Project-CC |
+| **Revision** | main |
+| **Path** | k8s |
+| **Cluster URL** | https://kubernetes.default.svc |
+| **Namespace** | default |
 
-ArgoCD will sync the `k8s/` directory from GitHub and maintain the cluster state automatically. Any push to the `k8s/` directory triggers a reconciliation.
+ArgoCD will automatically sync the `k8s/` directory from GitHub and maintain cluster state. Any push to the `k8s/` directory triggers automatic reconciliation.
 
 ---
 
-## Monitoring
+## 📊 Monitoring
 
 ### Install Prometheus and Grafana
 
@@ -312,100 +354,133 @@ helm install prometheus prometheus-community/kube-prometheus-stack \
   --create-namespace
 ```
 
-Verify all monitoring pods are running:
+**Verify monitoring stack:**
 
 ```bash
 kubectl get pods -n monitoring
 ```
 
-### Access Grafana
+### Access Grafana Dashboard
 
-Get the Grafana admin password:
+**Get Grafana admin password:**
 
 ```bash
 kubectl --namespace monitoring get secrets prometheus-grafana \
   -o jsonpath="{.data.admin-password}" | base64 -d
 ```
 
-Port forward to access the UI:
+**Port forward to access UI:**
 
 ```bash
 kubectl --namespace monitoring port-forward svc/prometheus-grafana 3001:80
 ```
 
-Open `http://localhost:3001` and login with username `admin`.
+Open `http://localhost:3001` and login with username `admin` and the retrieved password.
 
-> **Note:** If accessing from a remote dev machine, an SSH tunnel is required:
+> **🔧 Remote Access Note:** If accessing from a remote dev machine, use SSH tunneling:
 > ```bash
 > ssh -i ~/.ssh/id_ecdsa -L 3001:127.0.0.1:3001 <user>@<dev-machine-hostname>
 > ```
 
-### Pre-built dashboards
+### 📊 Pre-built Dashboards
 
 | Dashboard | Description |
 |---|---|
-| Kubernetes / Compute Resources / Cluster | CPU and memory across all namespaces |
-| Kubernetes / Networking / Cluster | Network traffic per namespace |
-| Kubernetes / Compute Resources / Node (Pods) | Per-node resource breakdown |
-| Kubernetes / Compute Resources / Pod | Individual pod metrics |
+| **Kubernetes / Compute Resources / Cluster** | CPU and memory usage across all namespaces |
+| **Kubernetes / Networking / Cluster** | Network traffic analysis per namespace |
+| **Kubernetes / Compute Resources / Node (Pods)** | Per-node resource breakdown and utilization |
+| **Kubernetes / Compute Resources / Pod** | Individual pod performance metrics |
 
 ---
 
-## CI/CD Pipelines
+## ⚙️ CI/CD Pipelines
 
-All pipelines authenticate to AWS via OIDC — no static credentials are stored in GitHub Secrets.
+All pipelines use OIDC authentication to AWS — no static credentials stored in GitHub Secrets.
 
-### `docker-security.yml` — triggers on push to `main`
+### 🔒 `docker-security.yml` Pipeline
+
+**Trigger:** Push to `main` branch
 
 | Step | Description |
 |---|---|
-| Checkov scan | Scans Terraform IaC for security misconfigurations |
-| Docker build | Builds image tagged with git commit SHA |
-| Trivy scan | Scans image for CRITICAL vulnerabilities, fails if fixable ones found |
-| ECR push | Pushes verified image to Amazon ECR |
-| Git update | Updates image tag in `k8s/deployment.yaml` and commits back to trigger ArgoCD |
+| **Checkov Scan** | Scans Terraform IaC for security misconfigurations |
+| **Docker Build** | Builds container image tagged with git commit SHA |
+| **Trivy Scan** | Scans image for CRITICAL vulnerabilities, fails on fixable issues |
+| **ECR Push** | Pushes verified image to Amazon ECR |
+| **Git Update** | Updates image tag in `k8s/deployment.yaml` and commits to trigger ArgoCD |
 
-### `terraform-apply.yml` — manual trigger (`workflow_dispatch`)
+### 🏗️ `terraform-apply.yml` Pipeline
 
-Runs `terraform fmt -check` → `terraform validate` → `terraform plan` → `terraform apply -auto-approve`
+**Trigger:** Manual (`workflow_dispatch`)
 
-### `terraform-destroy.yml` — manual trigger (`workflow_dispatch`)
+**Steps:** `terraform fmt -check` → `terraform validate` → `terraform plan` → `terraform apply -auto-approve`
 
-Runs `terraform init` → `terraform destroy -auto-approve`
+### 🗑️ `terraform-destroy.yml` Pipeline
 
-### Triggering a deployment manually
+**Trigger:** Manual (`workflow_dispatch`)
 
-Push any change to `main` to trigger the Docker Security pipeline. To manually trigger Terraform:
+**Steps:** `terraform init` → `terraform destroy -auto-approve`
 
-1. Go to GitHub repo > Actions
-2. Select the workflow
+### 🚀 Triggering Deployments
+
+**Automatic:** Push any change to `main` branch to trigger the Docker Security pipeline
+
+**Manual:** 
+1. Navigate to GitHub repo > Actions
+2. Select the desired workflow
 3. Click **Run workflow**
 
 ---
 
-## Architecture
+## 🏛️ Architecture
 
 ![Architecture Diagram](./EKS-arch.png)
 
-### Traffic flow
-User → Cloudflare DNS → AWS NLB → Traefik → ClusterIP Service → App Pods
+### 🌐 Traffic Flow
+```
+User → Cloudflare DNS → AWS NLB → Traefik Ingress → ClusterIP Service → Application Pods
+```
 
-### Certificate flow
-Ingress annotation → CertManager → Let's Encrypt ACME challenge → Certificate issued → Stored as Kubernetes Secret → Attached to Ingress
+### 🔐 Certificate Management Flow
+```
+Ingress Annotation → CertManager → Let's Encrypt ACME Challenge → Certificate Issued → K8s Secret → Ingress TLS
+```
 
-### DNS automation flow
-Ingress created → ExternalDNS detects hostname → Route 53 record created automatically
+### 📡 DNS Automation Flow
+```
+Ingress Created → ExternalDNS Detection → Route 53 Record Creation → DNS Propagation
+```
 
-### GitOps flow
-Push to main → GitHub Actions builds and pushes image → Updates deployment.yaml → ArgoCD detects change → Deploys to cluster
+### 🔄 GitOps Flow
+```
+Main Branch Push → GitHub Actions → Image Build & Push → Deployment Update → ArgoCD Sync → Cluster Deployment
+```
 
 ---
 
-## Screenshots
+## 📸 Screenshots
 
 | Component | Screenshot |
 |---|---|
-| Application live at `https://sc-k8sapp.com` | ![App](./screenshots/app.png) |
-| ArgoCD showing Healthy and Synced | ![ArgoCD](./screenshots/argocd.png) |
-| Grafana cluster networking dashboard | ![Grafana](./screenshots/grafana.png) |
-| GitHub Actions successful pipeline runs | ![CI/CD](./screenshots/github-actions.png) |
+| **Live Application** at `https://sc-k8sapp.com` | ![Application](./screenshots/app.png) |
+| **ArgoCD** - Healthy and Synced Status | ![ArgoCD Dashboard](./screenshots/argocd.png) |
+| **Grafana** - Cluster Networking Dashboard | ![Grafana Monitoring](./screenshots/grafana.png) |
+| **GitHub Actions** - Successful Pipeline Runs | ![CI/CD Pipelines](./screenshots/github-actions.png) |
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## 📄 License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+---
+
+**⭐ If this project helped you, please consider giving it a star!**

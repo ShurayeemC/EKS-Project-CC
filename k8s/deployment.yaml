@@ -16,6 +16,6 @@ spec:                           # Specification of the deployment
     spec:
       containers:
       - name: 2048-app
-        image: 321431649440.dkr.ecr.eu-west-2.amazonaws.com/sc-eks-ecr:824759f80ab7b495ba0d835a1336a14d85804f6e
+        image: 321431649440.dkr.ecr.eu-west-2.amazonaws.com/sc-eks-ecr:8928cab48ad111777613a72f30d980712d393d2d
         ports:
         - containerPort: 3000

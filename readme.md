@@ -181,8 +181,6 @@ ip-10-0-3-169.eu-west-2.compute.internal   Ready    <none>   Xd    v1.35.x
 ip-10-0-4-169.eu-west-2.compute.internal   Ready    <none>   Xd    v1.35.x
 ```
 
-![EKS Cluster Nodes](./screenshots/eks-cluster-nodes.png)
-*EKS cluster showing healthy worker nodes in Ready state*
 
 ### Troubleshooting Access Issues
 
@@ -294,7 +292,7 @@ kubectl get certificate -w
 
 Once `READY: True`, the application is accessible at `https://sc-k8sapp.com`.
 
-![Live Application](./screenshots/live-app.png)
+![Live Application](./screenshots/app.png)
 *Live application running at https://sc-k8sapp.com with SSL certificate*
 
 ---
@@ -345,7 +343,7 @@ In the ArgoCD UI, create a new application with these settings:
 
 ArgoCD will automatically sync the `k8s/` directory from GitHub and maintain cluster state. Any push to the `k8s/` directory triggers automatic reconciliation.
 
-![ArgoCD Application](./screenshots/argocd-application.png)
+![ArgoCD Application](./screenshots/argocd.png)
 *ArgoCD application dashboard showing healthy sync status and deployed resources*
 
 ---
@@ -385,7 +383,7 @@ kubectl --namespace monitoring port-forward svc/prometheus-grafana 3001:80
 
 Open `http://localhost:3001` and login with username `admin` and the retrieved password.
 
-![Grafana Dashboard](./screenshots/grafana-dashboard.png)
+![Grafana Dashboard](./screenshots/grafana.png)
 *Grafana monitoring dashboard showing cluster metrics and performance*
 
 > **🔧 Remote Access Note:** If accessing from a remote dev machine, use SSH tunneling:
@@ -441,7 +439,7 @@ All pipelines use OIDC authentication to AWS — no static credentials stored in
 2. Select the desired workflow
 3. Click **Run workflow**
 
-![GitHub Actions](./screenshots/github-actions-pipeline.png)
+![GitHub Actions](./screenshots/github-actions.png)
 *GitHub Actions workflow runs showing successful CI/CD pipeline executions*
 
 ---

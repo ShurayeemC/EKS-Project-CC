@@ -182,6 +182,9 @@ ip-10-0-3-169.eu-west-2.compute.internal   Ready    <none>   Xd    v1.35.x
 ip-10-0-4-169.eu-west-2.compute.internal   Ready    <none>   Xd    v1.35.x
 ```
 
+![EKS Cluster Nodes](./screenshots/eks-cluster-nodes.png)
+*EKS cluster showing healthy worker nodes in Ready state*
+
 ### Troubleshooting Access Issues
 
 If you receive an `Unauthorized` error, create an access entry for your IAM user:
@@ -292,6 +295,9 @@ kubectl get certificate -w
 
 Once `READY: True`, the application is accessible at `https://sc-k8sapp.com`.
 
+![Live Application](./screenshots/live-app.png)
+*Live application running at https://sc-k8sapp.com with SSL certificate*
+
 ---
 
 ## 🔄 GitOps with ArgoCD
@@ -340,6 +346,9 @@ In the ArgoCD UI, create a new application with these settings:
 
 ArgoCD will automatically sync the `k8s/` directory from GitHub and maintain cluster state. Any push to the `k8s/` directory triggers automatic reconciliation.
 
+![ArgoCD Application](./screenshots/argocd-application.png)
+*ArgoCD application dashboard showing healthy sync status and deployed resources*
+
 ---
 
 ## 📊 Monitoring
@@ -376,6 +385,9 @@ kubectl --namespace monitoring port-forward svc/prometheus-grafana 3001:80
 ```
 
 Open `http://localhost:3001` and login with username `admin` and the retrieved password.
+
+![Grafana Dashboard](./screenshots/grafana-dashboard.png)
+*Grafana monitoring dashboard showing cluster metrics and performance*
 
 > **🔧 Remote Access Note:** If accessing from a remote dev machine, use SSH tunneling:
 > ```bash
@@ -430,6 +442,9 @@ All pipelines use OIDC authentication to AWS — no static credentials stored in
 2. Select the desired workflow
 3. Click **Run workflow**
 
+![GitHub Actions](./screenshots/github-actions-pipeline.png)
+*GitHub Actions workflow runs showing successful CI/CD pipeline executions*
+
 ---
 
 ## 🏛️ Architecture
@@ -469,18 +484,3 @@ Main Branch Push → GitHub Actions → Image Build & Push → Deployment Update
 
 ---
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
----
-
-**⭐ If this project helped you, please consider giving it a star!**

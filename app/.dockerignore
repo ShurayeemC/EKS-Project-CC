@@ -1,0 +1,21 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+CONTRIBUTING.md
+LICENSE.txt
+
+# Development files
+Rakefile
+.jshintrc
+package-lock.json
+
+# Docker
+dockerfile
+
+# OS files
+.DS_Store
+Thumbs.db
+EOF

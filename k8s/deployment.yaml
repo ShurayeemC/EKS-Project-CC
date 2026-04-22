@@ -8,7 +8,7 @@ metadata:                       # Metadata about the deployment such as its name
     environment: production     # Environment label — shows which env this belongs to, important for multi-env setups
     team: platform              # Ownership label — in production you always want to know who owns a resource
 spec:                           # Specification of the deployment
-  replicas: 3                   # Number of pod replicas running at any time
+  replicas: 2                   # Number of pod replicas running at any time
   selector:                     # Selector finds pods with matching labels to manage
     matchLabels:
       app: 2048-app
@@ -18,6 +18,13 @@ spec:                           # Specification of the deployment
         app: 2048-app
         environment: production
     spec:
+      topologySpreadConstraints:                    # Ensures pods are spread across availability zones for high availability
+        - maxSkew: 1                                  # Maximum difference in pod count between zones — 1 means eu-west-2a and eu-west-2b stay balanced
+          topologyKey: topology.kubernetes.io/zone    # Spread across AZs — Kubernetes uses this node label to identify zones
+          whenUnsatisfiable: DoNotSchedule            # If spreading would be violated, don't schedule the pod rather than violating the constraint
+          labelSelector:                              # Which pods this constraint applies to
+            matchLabels:
+              app: 2048-app                           # Only counts pods with this label when calculating spread
       securityContext:          # Pod-level security context — applies to ALL containers in the pod
         runAsNonRoot: true      # Prevents container running as root — critical security control, root in container = root on node if container escapes
         runAsUser: 1000         # Runs as user ID 1000 instead of root (0)
@@ -54,4 +61,3 @@ spec:                           # Specification of the deployment
             capabilities:         # Linux kernel capabilities — fine-grained permissions beyond just root/non-root
               drop:
                 - ALL               # Drops ALL Linux capabilities — container has minimum possible privileges. This is the most important security hardening you can do
-

@@ -1,0 +1,23 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: app2048-hpa
+  namespace: app
+  labels:
+    app: 2048-app
+    environment: production
+    team: platform
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: eks-deployment
+  minReplicas: 2      # Minimum pods always running
+  maxReplicas: 10     # Maximum pods to scale up to
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70  # Scale up when average CPU across pods exceeds 70%

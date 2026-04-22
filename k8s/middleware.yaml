@@ -1,0 +1,14 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: app-ratelimit
+  namespace: app                  # Must be in same namespace as the Ingress
+  labels:
+    app: 2048-app
+    environment: production
+    team: platform
+spec:
+  rateLimit:
+    average: 100                  # Allow 100 requests per second on average per client IP
+    burst: 50                     # Allow bursts of up to 50 extra requests above the average
+    period: 1s                    # Time window for rate calculation

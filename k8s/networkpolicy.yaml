@@ -1,0 +1,34 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: app2048-network-policy
+  namespace: app
+  labels:
+    app: 2048-app
+    environment: production
+    team: platform
+spec:
+  podSelector:
+    matchLabels:
+      app: 2048-app        # Applies to your 2048 app pods
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: traefik    # Only allow ingress traffic from Traefik namespace
+    ports:
+    - protocol: TCP
+      port: 3000           # Only on the app port
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: kube-system  # Allow DNS lookups
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53

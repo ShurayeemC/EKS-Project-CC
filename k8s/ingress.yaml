@@ -8,9 +8,9 @@ metadata:
     environment: production
     team: platform
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-production   # Tells CertManager which ClusterIssuer to use — ClusterIssuer is cluster-wide so it works across namespaces
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure   # Explicitly tells Traefik to only accept HTTPS traffic on this route
-    traefik.ingress.kubernetes.io/router.middlewares: traefik-redirect-to-https@kubernetescrd   # Redirects any HTTP traffic to HTTPS automatically
+    cert-manager.io/cluster-issuer: letsencrypt-production          # Tells CertManager which ClusterIssuer to use — ClusterIssuer is cluster-wide so it works across namespaces
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure     # Explicitly tells Traefik to only accept HTTPS traffic on this route
+    traefik.ingress.kubernetes.io/router.middlewares: traefik-redirect-to-https@kubernetescrd,app-ratelimit@kubernetescrd   # Chains two middlewares — HTTPS redirect and rate limiting
 spec:
   ingressClassName: traefik                         # Tells Kubernetes which Ingress controller should handle this — important if you have multiple controllers
   tls:

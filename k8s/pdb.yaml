@@ -1,0 +1,14 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: app2048-pdb
+  namespace: app
+  labels:
+    app: 2048-app
+    environment: production
+    team: platform
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: 2048-app

@@ -25,7 +25,7 @@ spec:                           # Specification of the deployment
       containers:
 <<<<<<< HEAD
         - name: 2048-app
-          image: 321431649440.dkr.ecr.eu-west-2.amazonaws.com/sc-eks-ecr:824759f80ab7b495ba0d835a1336a14d85804f6e
+          image: 321431649440.dkr.ecr.eu-west-2.amazonaws.com/sc-eks-ecr:c9c409156bd2738d3ff61f4c7ea80c64c3e8e490
           ports:
             - containerPort: 3000
           resources:              # Resource management — without this a single pod can consume ALL node resources and starve other pods
@@ -57,7 +57,7 @@ spec:                           # Specification of the deployment
                 - ALL               # Drops ALL Linux capabilities — container has minimum possible privileges. This is the most important security hardening you can do
 =======
       - name: 2048-app
-        image: 321431649440.dkr.ecr.eu-west-2.amazonaws.com/sc-eks-ecr:8928cab48ad111777613a72f30d980712d393d2d
+        image: 321431649440.dkr.ecr.eu-west-2.amazonaws.com/sc-eks-ecr:c9c409156bd2738d3ff61f4c7ea80c64c3e8e490
         ports:
         - containerPort: 3000
 >>>>>>> efb6b7377660068adc65381d700e462585b69cfb

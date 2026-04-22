@@ -2,23 +2,29 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: app2048-ingress
+  namespace: app                                    # Must match the namespace of the Service it points to — Traefik watches all namespaces so it will still pick this up
+  labels:
+    app: 2048-app
+    environment: production
+    team: platform
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-production
-
+    cert-manager.io/cluster-issuer: letsencrypt-production   # Tells CertManager which ClusterIssuer to use — ClusterIssuer is cluster-wide so it works across namespaces
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure   # Explicitly tells Traefik to only accept HTTPS traffic on this route
+    traefik.ingress.kubernetes.io/router.middlewares: traefik-redirect-to-https@kubernetescrd   # Redirects any HTTP traffic to HTTPS automatically
 spec:
-  ingressClassName: traefik
+  ingressClassName: traefik                         # Tells Kubernetes which Ingress controller should handle this — important if you have multiple controllers
   tls:
   - hosts:
     - sc-k8sapp.com
-    secretName: app2048-tls
+    secretName: app2048-tls                         # CertManager creates a Secret with this name containing the TLS certificate — must be in same namespace as Ingress
   rules:
   - host: sc-k8sapp.com
     http:
       paths:
       - path: /
-        pathType: Prefix
+        pathType: Prefix                            # Prefix means /anything will match — so / /about /api all route to this service
         backend:
           service:
-            name: app2048service
+            name: app2048service                    # Must match the Service name exactly
             port:
-              number: 80
+              number: 80                            # Must match the Service port, not the container port

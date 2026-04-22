@@ -19,15 +19,33 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: eu-west-2 
-          
+          aws-region: eu-west-2
+
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3    
+        uses: hashicorp/setup-terraform@v3
 
       - name: Terraform fmt
         run: terraform fmt -check
-        working-directory: infrastructure 
-          
+        working-directory: infrastructure
+
+      - name: Install tflint
+        run: |
+          curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+
+      - name: Run tflint
+        run: |
+          tflint --init
+          tflint
+        working-directory: infrastructure
+
+      - name: Install tfsec
+        run: |
+          curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
+
+      - name: Run tfsec
+        run: tfsec . --soft-fail
+        working-directory: infrastructure
+
       - name: Terraform Init
         run: terraform init
         working-directory: infrastructure

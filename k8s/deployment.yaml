@@ -1,21 +1,56 @@
 apiVersion: apps/v1             # The API version that the deployment calls from KubeAPI server
 kind: Deployment                # The type of resource being created in the node which is what "Kind" defines
 metadata:                       # Metadata about the deployment such as its name and labels
-  name: eks-deployment         # Name of Deployment
-  labels:                       # Labels are just key-value tags you stick on Kubernetes resources. Think of them like luggage tags at an airport — they help identify and group things
-    app: 2048-app               # The actual label which will show "2048-app"
+  name: eks-deployment          # Name of Deployment
+  namespace: app                # Moved out of default namespace into its own — default is bad practice in production, every app should have its own namespace for isolation
+  labels:                       # Labels are key-value tags used to identify and group resources
+    app: 2048-app               # App label for selector matching
+    environment: production     # Environment label — shows which env this belongs to, important for multi-env setups
+    team: platform              # Ownership label — in production you always want to know who owns a resource
 spec:                           # Specification of the deployment
-  replicas: 3               # Number of deployments
-  selector:                     # A selector is the search query that finds resources with matching labels. 
-    matchLabels:                # Matching the labels telling the deployment to manage the pods which have the labels underneath
-      app: 2048-app 
-  template:                     # This is creating a pod
+  replicas: 3                   # Number of pod replicas running at any time
+  selector:                     # Selector finds pods with matching labels to manage
+    matchLabels:
+      app: 2048-app
+  template:                     # Pod template — defines what each pod looks like
     metadata:
       labels:
         app: 2048-app
+        environment: production
     spec:
+      securityContext:          # Pod-level security context — applies to ALL containers in the pod
+        runAsNonRoot: true      # Prevents container running as root — critical security control, root in container = root on node if container escapes
+        runAsUser: 1000         # Runs as user ID 1000 instead of root (0)
+        fsGroup: 2000           # File system group — any volumes mounted will be owned by this group
       containers:
-      - name: 2048-app
-        image: 321431649440.dkr.ecr.eu-west-2.amazonaws.com/sc-eks-ecr:824759f80ab7b495ba0d835a1336a14d85804f6e
-        ports:
-        - containerPort: 3000
+        - name: 2048-app
+          image: 321431649440.dkr.ecr.eu-west-2.amazonaws.com/sc-eks-ecr:824759f80ab7b495ba0d835a1336a14d85804f6e
+          ports:
+            - containerPort: 3000
+          resources:              # Resource management — without this a single pod can consume ALL node resources and starve other pods
+            requests:             # Minimum resources guaranteed to this pod — used by scheduler to decide which node to place pod on
+              memory: "64Mi"      # 64 megabytes of RAM guaranteed
+              cpu: "100m"         # 100 millicores of CPU guaranteed (1000m = 1 vCPU)
+            limits:               # Maximum resources this pod can consume — pod gets killed if it exceeds memory limit
+              memory: "128Mi"     # Hard cap of 128MB RAM
+              cpu: "200m"         # Hard cap of 200 millicores CPU
+          livenessProbe:          # Liveness probe — answers "is this pod alive?" — if it fails Kubernetes RESTARTS the pod
+            httpGet:              # Makes an HTTP GET request to check health
+              path: /             # Hits the root path of the app
+              port: 3000          # On port 3000 where the app listens
+            initialDelaySeconds: 10   # Waits 10 seconds before first check — gives app time to start up
+            periodSeconds: 10         # Checks every 10 seconds
+            failureThreshold: 3       # Restarts pod after 3 consecutive failures — prevents flapping
+          readinessProbe:         # Readiness probe — answers "is this pod ready to receive traffic?" — if it fails Kubernetes REMOVES pod from Service load balancer
+            httpGet:              # Same HTTP check as liveness
+              path: /
+              port: 3000
+            initialDelaySeconds: 5    # Shorter delay — we want to serve traffic as soon as possible
+            periodSeconds: 5          # Checks every 5 seconds
+            failureThreshold: 3       # Removes from load balancer after 3 failures
+          securityContext:        # Container-level security context — more granular than pod-level
+            allowPrivilegeEscalation: false   # Prevents process inside container gaining more privileges than it started with
+            readOnlyRootFilesystem: false     # Set to true in production to prevent writing to container filesystem — false here because app needs to write temp files
+            capabilities:         # Linux kernel capabilities — fine-grained permissions beyond just root/non-root
+              drop:
+                - ALL               # Drops ALL Linux capabilities — container has minimum possible privileges. This is the most important security hardening you can do

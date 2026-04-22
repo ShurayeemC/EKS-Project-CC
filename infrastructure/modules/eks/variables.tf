@@ -13,3 +13,8 @@ variable "subnet_ids" {
 variable "node_role_arn" {
   type = string
 }
+
+variable "common_tags" {
+  type    = map(string)
+  default = {}
+}

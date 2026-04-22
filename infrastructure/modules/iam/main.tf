@@ -1,6 +1,15 @@
+# Fetch the EKS cluster data dynamically so we don't hardcode the OIDC URL
+data "aws_eks_cluster" "cluster" {
+  name = var.cluster_name
+}
+
+locals {
+  oidc_issuer = trimprefix(data.aws_eks_cluster.cluster.identity[0].oidc[0].issuer, "https://")
+}
+
 resource "aws_iam_role" "eks_cluster_role" {
   name = "eks-cluster-role"
- 
+
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -14,6 +23,10 @@ resource "aws_iam_role" "eks_cluster_role" {
       },
     ]
   })
+
+  tags = merge(var.common_tags, {
+    Name = "eks-cluster-role"
+  })
 }
 
 resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
@@ -23,7 +36,7 @@ resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
 
 resource "aws_iam_role" "eks_node_groups" {
   name = "eks-node-groups"
- 
+
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -37,6 +50,10 @@ resource "aws_iam_role" "eks_node_groups" {
       },
     ]
   })
+
+  tags = merge(var.common_tags, {
+    Name = "eks-node-groups"
+  })
 }
 
 resource "aws_iam_role_policy_attachment" "eks_worker_policy" {
@@ -49,10 +66,10 @@ resource "aws_iam_role_policy_attachment" "CNI_policy" {
   role       = aws_iam_role.eks_node_groups.name
 }
 
-  resource "aws_iam_role_policy_attachment" "EC2_Container_Registry_Read_Only" {
+resource "aws_iam_role_policy_attachment" "EC2_Container_Registry_Read_Only" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
   role       = aws_iam_role.eks_node_groups.name
-  }
+}
 
 resource "aws_iam_policy" "external_dns" {
   name = "external-dns-policy"
@@ -77,6 +94,10 @@ resource "aws_iam_policy" "external_dns" {
       }
     ]
   })
+
+  tags = merge(var.common_tags, {
+    Name = "external-dns-policy"
+  })
 }
 
 resource "aws_iam_role" "external_dns" {
@@ -87,16 +108,20 @@ resource "aws_iam_role" "external_dns" {
     Statement = [{
       Effect = "Allow"
       Principal = {
-        Federated = "arn:aws:iam::321431649440:oidc-provider/oidc.eks.eu-west-2.amazonaws.com/id/8929F79DA30E3699B4F84E8D6F24D34F"
+        Federated = "arn:aws:iam::321431649440:oidc-provider/${local.oidc_issuer}"
       }
       Action = "sts:AssumeRoleWithWebIdentity"
       Condition = {
         StringEquals = {
-          "oidc.eks.eu-west-2.amazonaws.com/id/8929F79DA30E3699B4F84E8D6F24D34F:sub" = "system:serviceaccount:default:external-dns"
-          "oidc.eks.eu-west-2.amazonaws.com/id/8929F79DA30E3699B4F84E8D6F24D34F:aud" = "sts.amazonaws.com"
+          "${local.oidc_issuer}:sub" = "system:serviceaccount:default:external-dns"
+          "${local.oidc_issuer}:aud" = "sts.amazonaws.com"
         }
       }
     }]
+  })
+
+  tags = merge(var.common_tags, {
+    Name = "external-dns-role"
   })
 }
 
@@ -108,5 +133,9 @@ resource "aws_iam_role_policy_attachment" "external_dns" {
 resource "aws_iam_openid_connect_provider" "eks_oidc" {
   client_id_list  = ["sts.amazonaws.com"]
   thumbprint_list = ["9e99a48a9960b14926bb7f3b02e22da2b0ab7280"]
-  url             = "https://oidc.eks.eu-west-2.amazonaws.com/id/8929F79DA30E3699B4F84E8D6F24D34F"
+  url             = "https://${local.oidc_issuer}"
+
+  tags = merge(var.common_tags, {
+    Name = "eks-oidc-provider"
+  })
 }

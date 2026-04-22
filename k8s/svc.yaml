@@ -2,10 +2,15 @@ apiVersion: v1
 kind: Service
 metadata:
   name: app2048service
+  namespace: app              # Must match the deployment namespace — a Service can only route traffic to pods in the same namespace
+  labels:
+    app: 2048-app
+    environment: production   # Ownership and environment labels — same convention as deployment
+    team: platform
 spec:
   selector:
-    app: 2048-app
+    app: 2048-app             # Finds pods with this label — must match the labels on your deployment pods exactly
   ports:
     - protocol: TCP
-      port: 80
-      targetPort: 3000
+      port: 80                # Port the Service listens on internally
+      targetPort: 3000        # Port the container is actually running on — Service translates 80 to 3000

@@ -39,6 +39,8 @@ This project showcases a comprehensive cloud-native platform engineering solutio
 | **CI/CD** | GitHub Actions with OIDC |
 | **Security Scanning** | Checkov + Trivy |
 | **Container Registry** | Amazon ECR |
+| **Auto Scaling** | HPA + Metrics Server |
+| **Security** | Network Policy + Rate Limiting |
 
 ---
 
@@ -87,6 +89,10 @@ EKS-Project-CC/
 │   ├── backend.tf                   # Remote state (S3 + DynamoDB)
 │   ├── variables.tf                 # Input variables
 │   ├── outputs.tf                   # Output values
+│   ├── bootstrap/                   # Bootstrap infrastructure (ECR)
+│   │   ├── ecr.tf                   # ECR repository configuration
+│   │   ├── backend.tf               # Bootstrap state backend
+│   │   └── variables.tf             # Bootstrap variables
 │   └── modules/                     # Modular Terraform components
 │       ├── vpc/                     # VPC, subnets, IGW, NAT, route tables
 │       ├── iam/                     # EKS roles, node roles, ExternalDNS IRSA
@@ -94,10 +100,14 @@ EKS-Project-CC/
 │       ├── securitygroups/          # Control plane and node security groups
 │       └── route53/                 # DNS hosted zone configuration
 ├── k8s/                             # Kubernetes manifests
-│   ├── deployment.yaml              # Application deployment
+│   ├── deployment.yaml              # Application deployment with topology spread
 │   ├── svc.yaml                     # Kubernetes service
 │   ├── ingress.yaml                 # Ingress configuration
-│   └── clusterissuer.yaml           # Let's Encrypt certificate issuer
+│   ├── clusterissuer.yaml           # Let's Encrypt certificate issuer
+│   ├── pdb.yaml                     # Pod Disruption Budget
+│   ├── hpa.yaml                     # Horizontal Pod Autoscaler
+│   ├── networkpolicy.yaml           # Network security policies
+│   └── middleware.yaml              # Traefik rate limiting middleware
 ├── app/                             # Application source code and Dockerfile
 │   ├── dockerfile                   # Container build configuration
 │   ├── index.html                   # Application entry point
@@ -267,7 +277,26 @@ kubectl apply -f k8s/clusterissuer.yaml
 kubectl get clusterissuer
 ```
 
-### Step 5: Deploy the Application
+### Step 5: Install Metrics Server (for HPA)
+
+```bash
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+```
+
+**Verify metrics server is running:**
+
+```bash
+kubectl get pods -n kube-system | grep metrics-server
+kubectl top nodes
+```
+
+### Step 6: Create Application Namespace
+
+```bash
+kubectl create namespace app
+```
+
+### Step 7: Deploy the Application
 
 ```bash
 kubectl apply -f k8s/
@@ -276,13 +305,17 @@ kubectl apply -f k8s/
 **Verify all resources are healthy:**
 
 ```bash
-kubectl get pods
-kubectl get svc
-kubectl get ingress
-kubectl get certificate
+kubectl get pods -n app
+kubectl get svc -n app
+kubectl get ingress -n app
+kubectl get certificate -n app
+kubectl get hpa -n app
+kubectl get pdb -n app
+kubectl get networkpolicy -n app
+kubectl get middleware -n traefik
 ```
 
-### Step 6: Wait for SSL Certificate
+### Step 8: Wait for SSL Certificate
 
 The certificate will initially show `READY: False` while Let's Encrypt validates the domain. Wait 2-3 minutes:
 
@@ -339,7 +372,7 @@ In the ArgoCD UI, create a new application with these settings:
 | **Revision** | main |
 | **Path** | k8s |
 | **Cluster URL** | https://kubernetes.default.svc |
-| **Namespace** | default |
+| **Namespace** | app |
 
 ArgoCD will automatically sync the `k8s/` directory from GitHub and maintain cluster state. Any push to the `k8s/` directory triggers automatic reconciliation.
 
@@ -416,7 +449,7 @@ All pipelines use OIDC authentication to AWS — no static credentials stored in
 | **Docker Build** | Builds container image tagged with git commit SHA |
 | **Trivy Scan** | Scans image for CRITICAL vulnerabilities, fails on fixable issues |
 | **ECR Push** | Pushes verified image to Amazon ECR |
-| **Git Update** | Updates image tag in `k8s/deployment.yaml` and commits to trigger ArgoCD |
+| **ArgoCD Image Updater** | ArgoCD Image Updater automatically detects new ECR images and updates deployment |
 
 ### 🏗️ `terraform-apply.yml` Pipeline
 

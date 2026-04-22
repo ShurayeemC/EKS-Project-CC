@@ -23,11 +23,10 @@ spec:                           # Specification of the deployment
         runAsUser: 1000         # Runs as user ID 1000 instead of root (0)
         fsGroup: 2000           # File system group — any volumes mounted will be owned by this group
       containers:
-<<<<<<< HEAD
         - name: 2048-app
-          image: 321431649440.dkr.ecr.eu-west-2.amazonaws.com/sc-eks-ecr:c9c409156bd2738d3ff61f4c7ea80c64c3e8e490
+          image: 321431649440.dkr.ecr.eu-west-2.amazonaws.com/sc-eks-ecr:824759f80ab7b495ba0d835a1336a14d85804f6e
           ports:
-            - containerPort: 3000
+            - containerPort: 3000   # Port the container listens on — must match what the app actually uses
           resources:              # Resource management — without this a single pod can consume ALL node resources and starve other pods
             requests:             # Minimum resources guaranteed to this pod — used by scheduler to decide which node to place pod on
               memory: "64Mi"      # 64 megabytes of RAM guaranteed
@@ -55,9 +54,3 @@ spec:                           # Specification of the deployment
             capabilities:         # Linux kernel capabilities — fine-grained permissions beyond just root/non-root
               drop:
                 - ALL               # Drops ALL Linux capabilities — container has minimum possible privileges. This is the most important security hardening you can do
-=======
-      - name: 2048-app
-        image: 321431649440.dkr.ecr.eu-west-2.amazonaws.com/sc-eks-ecr:c9c409156bd2738d3ff61f4c7ea80c64c3e8e490
-        ports:
-        - containerPort: 3000
->>>>>>> efb6b7377660068adc65381d700e462585b69cfb

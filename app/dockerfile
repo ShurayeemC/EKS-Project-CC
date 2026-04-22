@@ -1,21 +1,21 @@
 FROM python@sha256:e55523f127124e5edc03ba201e3dbbc85172a2ec40d8651ac752364b23dfd733 AS builder
-
 WORKDIR /app
-
 COPY . .
 
 #-------Runtime stage-------#
-
 FROM python@sha256:e55523f127124e5edc03ba201e3dbbc85172a2ec40d8651ac752364b23dfd733
 
 WORKDIR /app
 
-COPY --from=builder /app/index.html /app 
+COPY --from=builder /app/index.html /app
 
 RUN addgroup --system group && adduser --system user
 
 RUN chown -R user:group /app
 
 USER user
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:3000')" || exit 1
 
 CMD ["python", "-m", "http.server", "3000"]

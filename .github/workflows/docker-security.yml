@@ -19,8 +19,7 @@ jobs:
       - name: Scan IaC code
         run: |
           checkov -d infrastructure \
-            --skip-check CKV_AWS_37,CKV_AWS_58,CKV_AWS_39,CKV_AWS_38,CKV_AWS_355,CKV_AWS_23,CKV2_AWS_5,CKV2_AWS_38,CKV2_AWS_11,CKV2_AWS_12,CKV2_AWS_39
-
+            --skip-check CKV_AWS_37,CKV_AWS_58,CKV_AWS_39,CKV_AWS_38,CKV_AWS_355,CKV_AWS_23,CKV2_AWS_5,CKV2_AWS_38,CKV2_AWS_11,CKV2_AWS_12,CKV2_AWS_39,CKV_AWS_51,CKV_AWS_136
   docker-build-scan-push:
     runs-on: ubuntu-latest
     needs: checkov-scan

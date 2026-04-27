@@ -31,7 +31,7 @@ spec:                           # Specification of the deployment
         fsGroup: 2000           # File system group — any volumes mounted will be owned by this group
       containers:
         - name: 2048-app
-          image: 321431649440.dkr.ecr.eu-west-2.amazonaws.com/sc-eks-ecr:6ad6e73008782104209ab1c66935f9fac6a69fc2
+          image: 321431649440.dkr.ecr.eu-west-2.amazonaws.com/sc-eks-ecr:24bef1b91136d22ad0e3461825ae1fc72e084ec0
           ports:
             - containerPort: 3000   # Port the container listens on — must match what the app actually uses
           resources:              # Resource management — without this a single pod can consume ALL node resources and starve other pods
